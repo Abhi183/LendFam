@@ -26,7 +26,7 @@ export const demoUsers: Record<string, DemoUserProfile> = {
   'demo-001': {
     uid: 'demo-001',
     displayName: 'Avery Chen',
-    email: 'avery@lendfam.demo',
+    email: 'avery@lendfam.app',
     photoURL: 'https://i.pravatar.cc/100?img=32',
     bio: 'CS major who loves building fintech tools.',
     school: 'UC Davis',
@@ -37,7 +37,7 @@ export const demoUsers: Record<string, DemoUserProfile> = {
   'demo-002': {
     uid: 'demo-002',
     displayName: 'Jordan Lee',
-    email: 'jordan@lendfam.demo',
+    email: 'jordan@lendfam.app',
     photoURL: 'https://i.pravatar.cc/100?img=12',
     bio: 'Studying economics and community lending.',
     school: 'UT Austin',
@@ -45,28 +45,11 @@ export const demoUsers: Record<string, DemoUserProfile> = {
     createdAt: makeDemoTimestamp(seedTime),
     updatedAt: makeDemoTimestamp(seedTime),
   },
-  'demo-003': {
-    uid: 'demo-003',
-    displayName: 'Priya Patel',
-    email: 'priya@lendfam.demo',
-    photoURL: 'https://i.pravatar.cc/100?img=45',
-    bio: 'MBA student focused on social impact.',
-    school: 'NYU',
-    country: 'United States',
-    createdAt: makeDemoTimestamp(seedTime),
-    updatedAt: makeDemoTimestamp(seedTime),
-  },
-  'demo-004': {
-    uid: 'demo-004',
-    displayName: 'Marco Silva',
-    email: 'marco@lendfam.demo',
-    photoURL: 'https://i.pravatar.cc/100?img=68',
-    bio: 'Design student who needs help with supplies.',
-    school: 'Parsons',
-    country: 'United States',
-    createdAt: makeDemoTimestamp(seedTime),
-    updatedAt: makeDemoTimestamp(seedTime),
-  },
+}
+
+export const demoPasswords: Record<string, string> = {
+  'demo-001': 'lendfam2024',
+  'demo-002': 'lendfam2024',
 }
 
 export const demoAuthUser = demoUsers['demo-001']
@@ -80,24 +63,11 @@ export const demoFriendRequests: Array<{
   status: 'pending' | 'accepted' | 'rejected'
   createdAt: DemoTimestamp
   updatedAt: DemoTimestamp
-}> = [
-  {
-    id: 'demo-request-001',
-    fromUid: 'demo-004',
-    fromEmail: 'marco@lendfam.demo',
-    fromName: 'Marco Silva',
-    toEmail: 'avery@lendfam.demo',
-    status: 'pending',
-    createdAt: makeDemoTimestamp(new Date(Date.now() - 1000 * 60 * 60 * 3)),
-    updatedAt: makeDemoTimestamp(new Date(Date.now() - 1000 * 60 * 60 * 3)),
-  },
-]
+}> = []
 
 export const demoFriendsByUser: Record<string, Set<string>> = {
-  'demo-001': new Set(['demo-002', 'demo-003']),
-  'demo-002': new Set(['demo-001']),
-  'demo-003': new Set(['demo-001']),
-  'demo-004': new Set([]),
+  'demo-001': new Set([]),
+  'demo-002': new Set([]),
 }
 
 export const demoPosts: Array<any> = [
@@ -128,5 +98,7 @@ export const demoPosts: Array<any> = [
     createdAt: makeDemoTimestamp(new Date(Date.now() - 1000 * 60 * 60 * 1)),
   },
 ]
+
+export const demoNotifications: Array<any> = []
 
 export const demoTransactions: Array<any> = []

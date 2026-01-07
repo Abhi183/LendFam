@@ -4,8 +4,9 @@ import { useAuth } from '../state/AuthContext'
 import { createPost, getLatestPostsForAuthors } from '../store/posts'
 import { listFriends } from '../store/friends'
 import { Toast, ToastState } from '../components/Toast'
-import { fmtUSD } from '../utils/money'
+import { calcTotalWithInterest, fmtUSD } from '../utils/money'
 import { Newspaper, PlusCircle } from 'lucide-react'
+import { addNotification } from '../store/notifications'
 
 export default function Feed() {
   const { user } = useAuth()
@@ -30,7 +31,6 @@ export default function Feed() {
   }, [user])
 
   const authors = useMemo(() => {
-    // MVP: show my posts + friends' posts. (FoF/public visibility can be implemented in next step)
     return user ? [user.uid, ...friendUids] : []
   }, [user, friendUids])
 
@@ -63,6 +63,13 @@ export default function Feed() {
         message: message.trim(),
         visibility,
       })
+      const friends = await listFriends(user.uid)
+      await Promise.all(friends.map((uid) => addNotification({
+        toUid: uid,
+        title: type === 'loan_request' ? 'New loan request' : 'New loan offer',
+        message: `${user.displayName ?? 'A friend'} posted ${type === 'loan_request' ? 'a request' : 'an offer'} for ${fmtUSD(a)}.`,
+        kind: 'post',
+      })))
       setMessage('')
       setToast({ open: true, title: 'Posted', message: 'Your network can now respond.', kind: 'ok' })
       await refresh()
@@ -77,7 +84,7 @@ export default function Feed() {
         <div className="py-10">
           <div className="flex items-center gap-3">
             <div className="badge"><Newspaper size={14} /> Feed</div>
-            <div className="text-sm text-slate-600">Post a request or offer — include interest and duration.</div>
+            <div className="text-sm text-slate-700">Post a request or offer — include interest and duration.</div>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-3 gap-4">
@@ -86,7 +93,7 @@ export default function Feed() {
 
               <div className="mt-4 grid gap-3">
                 <div>
-                  <label className="text-xs text-slate-500">Type</label>
+                  <label className="text-xs text-slate-600">Type</label>
                   <select className="input mt-1" value={type} onChange={(e) => setType(e.target.value as any)}>
                     <option value="loan_request">Loan request</option>
                     <option value="loan_offer">Loan offer</option>
@@ -94,23 +101,23 @@ export default function Feed() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-500">Amount (USD)</label>
+                  <label className="text-xs text-slate-600">Amount (USD)</label>
                   <input className="input mt-1" value={amount} onChange={(e) => setAmount(e.target.value)} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-500">Interest %</label>
+                    <label className="text-xs text-slate-600">Interest %</label>
                     <input className="input mt-1" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500">Days</label>
+                    <label className="text-xs text-slate-600">Days</label>
                     <input className="input mt-1" value={durationDays} onChange={(e) => setDurationDays(e.target.value)} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-500">Visibility</label>
+                  <label className="text-xs text-slate-600">Visibility</label>
                   <select className="input mt-1" value={visibility} onChange={(e) => setVisibility(e.target.value as any)}>
                     <option value="friends">Friends</option>
                     <option value="fof">Friends-of-friends</option>
@@ -119,14 +126,15 @@ export default function Feed() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-500">Message</label>
+                  <label className="text-xs text-slate-600">Message</label>
                   <textarea className="input mt-1 min-h-[120px]" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Why do you need it / terms you prefer / repayment date…" />
                 </div>
 
-                <button className="btn-primary" onClick={publish}>Publish</button>
-                <div className="text-xs text-slate-500">
-                  MVP: This does not move real money — it creates transparent loan intents.
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+                  Estimated total repayment: <span className="font-semibold">{fmtUSD(calcTotalWithInterest(Number(amount), Number(interestRate)))}</span>
                 </div>
+
+                <button className="btn-primary" onClick={publish}>Publish</button>
               </div>
             </div>
 
@@ -138,7 +146,7 @@ export default function Feed() {
 
               <div className="mt-4 space-y-3">
                 {posts.length === 0 ? (
-                  <div className="text-sm text-slate-600">No posts. Create the first one.</div>
+                  <div className="text-sm text-slate-700">No posts. Create the first one.</div>
                 ) : posts.map((p) => (
                   <div key={p.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                     <div className="flex items-start justify-between gap-4">
@@ -152,19 +160,15 @@ export default function Feed() {
                         <div className="mt-2 text-lg font-semibold">
                           {p.type === 'loan_request' ? 'Needs' : 'Offers'} {fmtUSD(Number(p.amount))}
                         </div>
-                        <div className="text-sm text-slate-600 mt-1">
-                          {Number(p.durationDays)} days • {Number(p.interestRate)}% interest
+                        <div className="text-sm text-slate-700 mt-1">
+                          {Number(p.durationDays)} days • {Number(p.interestRate)}% interest • Total payback {fmtUSD(calcTotalWithInterest(Number(p.amount), Number(p.interestRate)))}
                         </div>
                       </div>
-                      <div className="text-xs text-slate-500 whitespace-nowrap">
+                      <div className="text-xs text-slate-600 whitespace-nowrap">
                         {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString() : ''}
                       </div>
                     </div>
-                    {p.message ? <div className="mt-2 text-sm text-slate-600">{p.message}</div> : null}
-
-                    <div className="mt-3 text-xs text-slate-500">
-                      Next step: add “Offer/Accept” actions + repayment schedule.
-                    </div>
+                    {p.message ? <div className="mt-2 text-sm text-slate-700">{p.message}</div> : null}
                   </div>
                 ))}
               </div>
