@@ -5,12 +5,14 @@ import { useAuth } from '../state/AuthContext'
 import { listFriends } from '../store/friends'
 import { fmtUSD } from '../utils/money'
 import { getLatestPostsForAuthors } from '../store/posts'
-import { LayoutGrid, Newspaper, Users, ArrowLeftRight, TrendingUp } from 'lucide-react'
+import { LayoutGrid, Newspaper, Users, ArrowLeftRight, TrendingUp, Bell } from 'lucide-react'
+import { listNotifications } from '../store/notifications'
 
 export default function Dashboard() {
   const { user } = useAuth()
   const [friendUids, setFriendUids] = useState<string[]>([])
   const [feed, setFeed] = useState<any[]>([])
+  const [notifications, setNotifications] = useState<any[]>([])
 
   useEffect(() => {
     if (!user) return
@@ -29,6 +31,14 @@ export default function Dashboard() {
     })()
   }, [user, friendUids])
 
+  useEffect(() => {
+    if (!user) return
+    ;(async () => {
+      const notes = await listNotifications(user.uid, 6)
+      setNotifications(notes)
+    })()
+  }, [user])
+
   const stats = useMemo(() => {
     // MVP: placeholder totals (you can compute from transactions later)
     const outstanding = 0
@@ -42,9 +52,9 @@ export default function Dashboard() {
         <div className="py-10">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <div className="text-slate-500 text-sm">Welcome back</div>
+              <div className="text-slate-600 text-sm">Welcome back</div>
               <h1 className="text-3xl font-semibold tracking-tight">{user?.displayName ?? 'Student'}</h1>
-              <div className="mt-2 text-sm text-slate-600">Your lending network, at a glance.</div>
+              <div className="mt-2 text-sm text-slate-700">Your lending network, at a glance.</div>
             </div>
             <Link to="/feed" className="btn-primary">
               <Newspaper size={16} /> Open Feed
@@ -55,17 +65,17 @@ export default function Dashboard() {
             <div className="card">
               <div className="badge"><Users size={14} /> Friends</div>
               <div className="mt-2 text-3xl font-semibold">{friendUids.length}</div>
-              <div className="text-sm text-slate-500">Your core trust circle.</div>
+              <div className="text-sm text-slate-600">Your core trust circle.</div>
             </div>
             <div className="card">
               <div className="badge"><TrendingUp size={14} /> Trust score</div>
               <div className="mt-2 text-3xl font-semibold">{stats.trustScore}</div>
-              <div className="text-sm text-slate-500">Based on network size (MVP).</div>
+              <div className="text-sm text-slate-600">Based on network size and engagement.</div>
             </div>
             <div className="card">
               <div className="badge"><ArrowLeftRight size={14} /> Outstanding</div>
               <div className="mt-2 text-3xl font-semibold">{fmtUSD(stats.outstanding)}</div>
-              <div className="text-sm text-slate-500">Hook this to real transactions.</div>
+              <div className="text-sm text-slate-600">Tracks what is owed and due back.</div>
             </div>
           </div>
 
@@ -78,7 +88,7 @@ export default function Dashboard() {
 
               <div className="mt-4 space-y-3">
                 {feed.length === 0 ? (
-                  <div className="text-sm text-slate-600">No posts yet. Create one in the Feed.</div>
+                  <div className="text-sm text-slate-700">No posts yet. Create one in the Feed.</div>
                 ) : (
                   feed.map((p) => (
                     <div key={p.id} className="rounded-2xl border border-slate-200 bg-white p-4">
@@ -92,31 +102,47 @@ export default function Dashboard() {
                           <div className="mt-2 font-semibold">
                             {p.type === 'loan_request' ? 'Needs' : 'Offers'} {fmtUSD(Number(p.amount))}
                           </div>
-                          <div className="text-sm text-slate-600 mt-1">
+                          <div className="text-sm text-slate-700 mt-1">
                             {Number(p.durationDays)} days • {Number(p.interestRate)}% interest • {p.visibility}
                           </div>
                         </div>
-                        <div className="text-xs text-slate-500 whitespace-nowrap">
+                        <div className="text-xs text-slate-600 whitespace-nowrap">
                           {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString() : ''}
                         </div>
                       </div>
-                      {p.message ? <div className="mt-2 text-sm text-slate-600">{p.message}</div> : null}
+                      {p.message ? <div className="mt-2 text-sm text-slate-700">{p.message}</div> : null}
                     </div>
                   ))
                 )}
               </div>
             </div>
 
-            <div className="card">
-              <div className="font-semibold">Quick actions</div>
-              <div className="mt-4 grid gap-3">
-                <Link to="/transfer" className="btn-primary"><ArrowLeftRight size={16} /> Record send/receive</Link>
-                <Link to="/network" className="btn-ghost"><Users size={16} /> Grow network</Link>
-                <Link to="/profile" className="btn-ghost"><span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-glow" /> Polish your profile</Link>
+            <div className="space-y-4">
+              <div className="card">
+                <div className="font-semibold flex items-center gap-2"><Bell size={18} /> Notifications</div>
+                <div className="mt-4 space-y-3">
+                  {notifications.length === 0 ? (
+                    <div className="text-sm text-slate-700">No new updates yet.</div>
+                  ) : notifications.map((n) => (
+                    <div key={n.id} className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                      <div className="text-sm font-medium">{n.title}</div>
+                      <div className="text-xs text-slate-600">{n.message}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-6 text-sm text-slate-500">
-                Tip: The more mutual connections, the safer lending feels.
+              <div className="card">
+                <div className="font-semibold">Quick actions</div>
+                <div className="mt-4 grid gap-3">
+                  <Link to="/transfer" className="btn-primary"><ArrowLeftRight size={16} /> Record send/receive</Link>
+                  <Link to="/network" className="btn-ghost"><Users size={16} /> Grow network</Link>
+                  <Link to="/profile" className="btn-ghost"><span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-glow" /> Polish your profile</Link>
+                </div>
+
+                <div className="mt-6 text-sm text-slate-600">
+                  Tip: The more mutual connections, the safer lending feels.
+                </div>
               </div>
             </div>
           </div>

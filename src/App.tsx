@@ -7,24 +7,11 @@ import Network from './pages/Network'
 import Feed from './pages/Feed'
 import Transfer from './pages/Transfer'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import { useAuth } from './state/AuthContext'
 
 export default function App() {
-  const { isDemo } = useAuth()
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-100">
       <TopNav />
-      {isDemo && (
-        <div className="border-b border-emerald-200 bg-emerald-50 text-emerald-900">
-          <div className="mx-auto max-w-6xl px-4 md:px-6 py-3 text-sm">
-            <div className="font-semibold">Demo mode is on.</div>
-            <div className="text-emerald-800/80">
-              Sign in with the dummy Google button to explore sample data.
-            </div>
-          </div>
-        </div>
-      )}
       <Routes>
         <Route path="/" element={<Landing />} />
 

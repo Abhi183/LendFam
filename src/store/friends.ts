@@ -12,7 +12,8 @@ import {
   where,
 } from 'firebase/firestore'
 import { db } from '../firebase'
-import { demoFriendRequests, demoFriendsByUser, makeDemoTimestamp } from './demoData'
+import { demoFriendRequests, demoFriendsByUser, demoUsers, makeDemoTimestamp } from './demoData'
+import { addNotification } from './notifications'
 
 export type FriendRequest = {
   fromUid: string
@@ -28,6 +29,12 @@ export async function sendFriendRequest(from: { uid: string; email: string; name
   if (!db) {
     const id = `demo-request-${Date.now()}`
     const now = makeDemoTimestamp()
+    const recipient = Object.values(demoUsers).find(
+      (u) => u.email.trim().toLowerCase() === toEmail.trim().toLowerCase(),
+    )
+    if (!recipient) {
+      throw new Error('No user found with that email.')
+    }
     demoFriendRequests.push({
       id,
       fromUid: from.uid,
@@ -38,6 +45,15 @@ export async function sendFriendRequest(from: { uid: string; email: string; name
       createdAt: now,
       updatedAt: now,
     })
+    const recipientUid = recipient?.uid
+    if (recipientUid) {
+      await addNotification({
+        toUid: recipientUid,
+        title: 'New friend request',
+        message: `${from.name} sent you a friend request.`,
+        kind: 'friend_request',
+      })
+    }
     return
   }
 
@@ -78,6 +94,13 @@ export async function acceptRequest(requestId: string, myUid: string) {
     if (!demoFriendsByUser[req.fromUid]) demoFriendsByUser[req.fromUid] = new Set()
     demoFriendsByUser[myUid].add(req.fromUid)
     demoFriendsByUser[req.fromUid].add(myUid)
+    const myName = demoUsers[myUid]?.displayName ?? 'A friend'
+    await addNotification({
+      toUid: req.fromUid,
+      title: 'Friend request accepted',
+      message: `${myName} accepted your request.`,
+      kind: 'friend_accept',
+    })
     return
   }
 
