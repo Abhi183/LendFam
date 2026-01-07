@@ -3,7 +3,7 @@ import { useAuth } from '../state/AuthContext'
 import { Container } from '../components/Container'
 
 export default function Landing() {
-  const { signInGoogle } = useAuth()
+  const { signInGoogle, configReady } = useAuth()
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-grid">
@@ -23,7 +23,11 @@ export default function Landing() {
               </p>
 
               <div id="get-started" className="mt-6 flex flex-wrap gap-3">
-                <button className="btn-primary" onClick={() => signInGoogle()}>
+                <button
+                  className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={() => signInGoogle()}
+                  disabled={!configReady}
+                >
                   Continue with Google <ArrowRight size={16} />
                 </button>
                 <a className="btn-ghost" href="#how">How it works</a>
