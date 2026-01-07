@@ -42,9 +42,9 @@ export default function Dashboard() {
         <div className="py-10">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <div className="text-slate-400 text-sm">Welcome back</div>
+              <div className="text-slate-500 text-sm">Welcome back</div>
               <h1 className="text-3xl font-semibold tracking-tight">{user?.displayName ?? 'Student'}</h1>
-              <div className="mt-2 text-sm text-slate-300">Your lending network, at a glance.</div>
+              <div className="mt-2 text-sm text-slate-600">Your lending network, at a glance.</div>
             </div>
             <Link to="/feed" className="btn-primary">
               <Newspaper size={16} /> Open Feed
@@ -55,17 +55,17 @@ export default function Dashboard() {
             <div className="card">
               <div className="badge"><Users size={14} /> Friends</div>
               <div className="mt-2 text-3xl font-semibold">{friendUids.length}</div>
-              <div className="text-sm text-slate-400">Your core trust circle.</div>
+              <div className="text-sm text-slate-500">Your core trust circle.</div>
             </div>
             <div className="card">
               <div className="badge"><TrendingUp size={14} /> Trust score</div>
               <div className="mt-2 text-3xl font-semibold">{stats.trustScore}</div>
-              <div className="text-sm text-slate-400">Based on network size (MVP).</div>
+              <div className="text-sm text-slate-500">Based on network size (MVP).</div>
             </div>
             <div className="card">
               <div className="badge"><ArrowLeftRight size={14} /> Outstanding</div>
               <div className="mt-2 text-3xl font-semibold">{fmtUSD(stats.outstanding)}</div>
-              <div className="text-sm text-slate-400">Hook this to real transactions.</div>
+              <div className="text-sm text-slate-500">Hook this to real transactions.</div>
             </div>
           </div>
 
@@ -73,15 +73,15 @@ export default function Dashboard() {
             <div className="lg:col-span-2 card">
               <div className="flex items-center justify-between">
                 <div className="font-semibold flex items-center gap-2"><LayoutGrid size={18} /> Latest in your circle</div>
-                <Link to="/feed" className="text-sm text-emerald-300 hover:text-emerald-200">See all</Link>
+                <Link to="/feed" className="text-sm text-emerald-700 hover:text-emerald-600">See all</Link>
               </div>
 
               <div className="mt-4 space-y-3">
                 {feed.length === 0 ? (
-                  <div className="text-sm text-slate-400">No posts yet. Create one in the Feed.</div>
+                  <div className="text-sm text-slate-600">No posts yet. Create one in the Feed.</div>
                 ) : (
                   feed.map((p) => (
-                    <div key={p.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div key={p.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export default function Dashboard() {
                           <div className="mt-2 font-semibold">
                             {p.type === 'loan_request' ? 'Needs' : 'Offers'} {fmtUSD(Number(p.amount))}
                           </div>
-                          <div className="text-sm text-slate-300 mt-1">
+                          <div className="text-sm text-slate-600 mt-1">
                             {Number(p.durationDays)} days • {Number(p.interestRate)}% interest • {p.visibility}
                           </div>
                         </div>
@@ -100,7 +100,7 @@ export default function Dashboard() {
                           {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString() : ''}
                         </div>
                       </div>
-                      {p.message ? <div className="mt-2 text-sm text-slate-300">{p.message}</div> : null}
+                      {p.message ? <div className="mt-2 text-sm text-slate-600">{p.message}</div> : null}
                     </div>
                   ))
                 )}
@@ -115,7 +115,7 @@ export default function Dashboard() {
                 <Link to="/profile" className="btn-ghost"><span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-glow" /> Polish your profile</Link>
               </div>
 
-              <div className="mt-6 text-sm text-slate-400">
+              <div className="mt-6 text-sm text-slate-500">
                 Tip: The more mutual connections, the safer lending feels.
               </div>
             </div>

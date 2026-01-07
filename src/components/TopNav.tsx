@@ -5,13 +5,13 @@ import { LayoutGrid, User2, Users, ArrowLeftRight, Newspaper, LogOut } from 'luc
 
 const navLink = ({ isActive }: { isActive: boolean }) =>
   'inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm border ' +
-  (isActive ? 'bg-emerald-500/15 border-emerald-400/25 text-emerald-200' : 'bg-white/5 border-white/10 hover:bg-white/10')
+  (isActive ? 'bg-emerald-100 border-emerald-200 text-emerald-800' : 'bg-white border-slate-200 hover:bg-slate-100')
 
 export function TopNav() {
   const { user, signOutNow } = useAuth()
 
   return (
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/70 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto max-w-6xl px-4 md:px-6 py-3 flex items-center justify-between gap-3">
         <Link to="/" className="shrink-0">
           <Logo />
@@ -26,17 +26,17 @@ export function TopNav() {
             <NavLink to="/profile" className={navLink}><User2 size={16} /> Profile</NavLink>
           </nav>
         ) : (
-          <div className="text-sm text-slate-400 hidden md:block">Lend with trust. Borrow with clarity.</div>
+          <div className="text-sm text-slate-500 hidden md:block">Lend with trust. Borrow with clarity.</div>
         )}
 
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-2xl px-3 py-2">
+              <div className="hidden sm:flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-3 py-2">
                 <img src={user.photoURL ?? ''} className="h-7 w-7 rounded-xl object-cover" />
                 <div className="leading-tight">
                   <div className="text-sm font-medium">{user.displayName ?? 'Student'}</div>
-                  <div className="text-xs text-slate-400">{user.email}</div>
+                  <div className="text-xs text-slate-500">{user.email}</div>
                 </div>
               </div>
               <button className="btn-ghost" onClick={() => signOutNow()}>

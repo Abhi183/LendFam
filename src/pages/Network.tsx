@@ -2,18 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { Container } from '../components/Container'
 import { useAuth } from '../state/AuthContext'
 import { acceptRequest, listFriends, listIncomingRequests, rejectRequest, removeFriend, sendFriendRequest } from '../store/friends'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '../firebase'
 import { Toast, ToastState } from '../components/Toast'
 import { Users, UserPlus, GitBranch, XCircle, CheckCircle2, Trash2 } from 'lucide-react'
+import { getUserProfile } from '../store/users'
 
 type MiniUser = { uid: string; displayName: string; photoURL?: string; email: string; school?: string }
 
 async function getUserMini(uid: string): Promise<MiniUser | null> {
-  const snap = await getDoc(doc(db, 'users', uid))
-  if (!snap.exists()) return null
-  const d = snap.data() as any
-  return { uid, displayName: d.displayName, photoURL: d.photoURL, email: d.email, school: d.school }
+  const profile = await getUserProfile(uid)
+  if (!profile) return null
+  return { uid, displayName: profile.displayName, photoURL: profile.photoURL, email: profile.email, school: profile.school }
 }
 
 export default function Network() {
@@ -90,13 +88,13 @@ export default function Network() {
         <div className="py-10">
           <div className="flex items-center gap-3">
             <div className="badge"><Users size={14} /> Network</div>
-            <div className="text-sm text-slate-400">Add friends and discover friends-of-friends.</div>
+            <div className="text-sm text-slate-600">Add friends and discover friends-of-friends.</div>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-3 gap-4">
             <div className="card">
               <div className="font-semibold flex items-center gap-2"><UserPlus size={18} /> Add a friend</div>
-              <div className="mt-3 text-sm text-slate-300">Send a friend request by email.</div>
+              <div className="mt-3 text-sm text-slate-600">Send a friend request by email.</div>
               <div className="mt-3 flex gap-2">
                 <input className="input" value={toEmail} onChange={(e) => setToEmail(e.target.value)} placeholder="friend@university.edu" />
                 <button className="btn-primary" onClick={invite} disabled={!toEmail.trim()}>Send</button>
@@ -110,13 +108,13 @@ export default function Network() {
               <div className="font-semibold">Incoming requests</div>
               <div className="mt-4 space-y-3">
                 {incoming.length === 0 ? (
-                  <div className="text-sm text-slate-400">No pending requests.</div>
+                  <div className="text-sm text-slate-600">No pending requests.</div>
                 ) : (
                   incoming.map((r) => (
-                    <div key={r.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-3">
+                    <div key={r.id} className="rounded-2xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="font-medium truncate">{r.fromName}</div>
-                        <div className="text-sm text-slate-400 truncate">{r.fromEmail}</div>
+                        <div className="text-sm text-slate-500 truncate">{r.fromEmail}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button className="btn-primary" onClick={() => accept(r.id)}><CheckCircle2 size={16} /> Accept</button>
@@ -134,14 +132,14 @@ export default function Network() {
               <div className="font-semibold">Your friends</div>
               <div className="mt-4 space-y-3">
                 {friends.length === 0 ? (
-                  <div className="text-sm text-slate-400">No friends yet. Add a friend to start lending.</div>
+                  <div className="text-sm text-slate-600">No friends yet. Add a friend to start lending.</div>
                 ) : friends.map((f) => (
-                  <div key={f.uid} className="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-3">
+                  <div key={f.uid} className="rounded-2xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <img src={f.photoURL ?? ''} className="h-10 w-10 rounded-2xl object-cover" />
                       <div className="min-w-0">
                         <div className="font-medium truncate">{f.displayName}</div>
-                        <div className="text-sm text-slate-400 truncate">{f.email}{f.school ? ` • ${f.school}` : ''}</div>
+                        <div className="text-sm text-slate-500 truncate">{f.email}{f.school ? ` • ${f.school}` : ''}</div>
                       </div>
                     </div>
                     <button className="btn-ghost" onClick={() => remove(f.uid)} title="Remove friend">
@@ -154,17 +152,17 @@ export default function Network() {
 
             <div className="card">
               <div className="font-semibold flex items-center gap-2"><GitBranch size={18} /> Friends-of-friends</div>
-              <div className="mt-2 text-sm text-slate-400">People two hops away — safer than random.</div>
+              <div className="mt-2 text-sm text-slate-600">People two hops away — safer than random.</div>
 
               <div className="mt-4 grid sm:grid-cols-2 gap-3">
                 {fof.length === 0 ? (
-                  <div className="text-sm text-slate-400">No friends-of-friends found yet.</div>
+                  <div className="text-sm text-slate-600">No friends-of-friends found yet.</div>
                 ) : fof.map((p) => (
-                  <div key={p.uid} className="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center gap-3">
+                  <div key={p.uid} className="rounded-2xl border border-slate-200 bg-white p-4 flex items-center gap-3">
                     <img src={p.photoURL ?? ''} className="h-10 w-10 rounded-2xl object-cover" />
                     <div className="min-w-0">
                       <div className="font-medium truncate">{p.displayName}</div>
-                      <div className="text-xs text-slate-400 truncate">{p.email}</div>
+                      <div className="text-xs text-slate-500 truncate">{p.email}</div>
                     </div>
                   </div>
                 ))}

@@ -12,6 +12,7 @@ import {
   where,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import { demoFriendRequests, demoFriendsByUser, makeDemoTimestamp } from './demoData'
 
 export type FriendRequest = {
   fromUid: string
@@ -24,6 +25,22 @@ export type FriendRequest = {
 }
 
 export async function sendFriendRequest(from: { uid: string; email: string; name: string }, toEmail: string) {
+  if (!db) {
+    const id = `demo-request-${Date.now()}`
+    const now = makeDemoTimestamp()
+    demoFriendRequests.push({
+      id,
+      fromUid: from.uid,
+      fromEmail: from.email,
+      fromName: from.name,
+      toEmail: toEmail.trim().toLowerCase(),
+      status: 'pending',
+      createdAt: now,
+      updatedAt: now,
+    })
+    return
+  }
+
   const now = Timestamp.now()
   const req: FriendRequest = {
     fromUid: from.uid,
@@ -38,6 +55,10 @@ export async function sendFriendRequest(from: { uid: string; email: string; name
 }
 
 export async function listIncomingRequests(myEmail: string) {
+  if (!db) {
+    return demoFriendRequests.filter((req) => req.toEmail === myEmail.trim().toLowerCase() && req.status === 'pending')
+  }
+
   const q = query(
     collection(db, 'friendRequests'),
     where('toEmail', '==', myEmail.trim().toLowerCase()),
@@ -48,6 +69,18 @@ export async function listIncomingRequests(myEmail: string) {
 }
 
 export async function acceptRequest(requestId: string, myUid: string) {
+  if (!db) {
+    const req = demoFriendRequests.find((item) => item.id === requestId)
+    if (!req) return
+    req.status = 'accepted'
+    req.updatedAt = makeDemoTimestamp()
+    if (!demoFriendsByUser[myUid]) demoFriendsByUser[myUid] = new Set()
+    if (!demoFriendsByUser[req.fromUid]) demoFriendsByUser[req.fromUid] = new Set()
+    demoFriendsByUser[myUid].add(req.fromUid)
+    demoFriendsByUser[req.fromUid].add(myUid)
+    return
+  }
+
   const ref = doc(db, 'friendRequests', requestId)
   const snap = await getDoc(ref)
   if (!snap.exists()) return
@@ -62,16 +95,34 @@ export async function acceptRequest(requestId: string, myUid: string) {
 }
 
 export async function rejectRequest(requestId: string) {
+  if (!db) {
+    const req = demoFriendRequests.find((item) => item.id === requestId)
+    if (!req) return
+    req.status = 'rejected'
+    req.updatedAt = makeDemoTimestamp()
+    return
+  }
+
   const ref = doc(db, 'friendRequests', requestId)
   await updateDoc(ref, { status: 'rejected', updatedAt: Timestamp.now() })
 }
 
 export async function listFriends(uid: string) {
+  if (!db) {
+    return Array.from(demoFriendsByUser[uid] ?? [])
+  }
+
   const snaps = await getDocs(collection(db, 'users', uid, 'friends'))
   return snaps.docs.map((d) => d.id)
 }
 
 export async function removeFriend(uid: string, friendUid: string) {
+  if (!db) {
+    demoFriendsByUser[uid]?.delete(friendUid)
+    demoFriendsByUser[friendUid]?.delete(uid)
+    return
+  }
+
   await deleteDoc(doc(db, 'users', uid, 'friends', friendUid))
   await deleteDoc(doc(db, 'users', friendUid, 'friends', uid))
 }

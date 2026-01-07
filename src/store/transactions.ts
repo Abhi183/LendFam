@@ -1,5 +1,6 @@
 import { Timestamp, addDoc, collection } from 'firebase/firestore'
 import { db } from '../firebase'
+import { demoTransactions, makeDemoTimestamp } from './demoData'
 
 export type Transaction = {
   fromUid: string
@@ -12,5 +13,14 @@ export type Transaction = {
 }
 
 export async function recordTransaction(t: Omit<Transaction, 'createdAt'>) {
+  if (!db) {
+    demoTransactions.unshift({
+      id: `demo-transaction-${Date.now()}`,
+      ...t,
+      createdAt: makeDemoTimestamp(),
+    })
+    return
+  }
+
   await addDoc(collection(db, 'transactions'), { ...t, createdAt: Timestamp.now() })
 }
