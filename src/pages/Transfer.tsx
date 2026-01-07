@@ -23,7 +23,7 @@ export default function Transfer() {
   const [amount, setAmount] = useState('25')
   const [interestRate, setInterestRate] = useState('0')
   const [note, setNote] = useState('')
-  const [mode, setMode] = useState<'sent' | 'received'>('sent')
+  const [mode, setMode] = useState<'sent' | 'received' | 'request'>('sent')
   const [toast, setToast] = useState<ToastState>({ open: false, title: '' })
 
   useEffect(() => {
@@ -49,19 +49,21 @@ export default function Transfer() {
       return
     }
     try {
-      // If "sent": I lent to them. If "received": they lent to me.
-      const fromUid = mode === 'sent' ? user.uid : toUid
-      const to = mode === 'sent' ? toUid : user.uid
+      const isLending = mode === 'sent'
+      const isRequesting = mode === 'request'
+      const fromUid = isLending ? user.uid : toUid
+      const to = isLending ? toUid : user.uid
       await recordTransaction({
         fromUid,
         toUid: to,
         amount: a,
         interestRate: r,
         note: note.trim(),
-        status: mode === 'sent' ? 'sent' : 'received',
+        status: isRequesting ? 'proposed' : (isLending ? 'sent' : 'received'),
       })
       setNote('')
-      setToast({ open: true, title: 'Recorded', message: `${mode === 'sent' ? 'Sent' : 'Received'} ${fmtUSD(a)} at ${r}%`, kind: 'ok' })
+      const actionLabel = isRequesting ? 'Requested' : (isLending ? 'Sent' : 'Received')
+      setToast({ open: true, title: isRequesting ? 'Request sent' : 'Recorded', message: `${actionLabel} ${fmtUSD(a)} at ${r}%`, kind: 'ok' })
     } catch (e: any) {
       setToast({ open: true, title: 'Could not record', message: e?.message, kind: 'err' })
     }
@@ -85,8 +87,9 @@ export default function Transfer() {
                   <div>
                     <label className="text-xs text-slate-600">Mode</label>
                     <select className="input mt-1" value={mode} onChange={(e) => setMode(e.target.value as any)}>
-                      <option value="sent">I sent (I lent money)</option>
-                      <option value="received">I received (I borrowed money)</option>
+                      <option value="sent">Send money (I lent to a friend)</option>
+                      <option value="received">Record received (I borrowed money)</option>
+                      <option value="request">Request money from a friend</option>
                     </select>
                   </div>
                   <div>
@@ -121,7 +124,7 @@ export default function Transfer() {
                 </div>
 
                 <button className="btn-primary" onClick={submit} disabled={friends.length === 0}>
-                  Record
+                  {mode === 'request' ? 'Send request' : 'Record'}
                 </button>
               </div>
             </div>
