@@ -5,21 +5,21 @@
 :root { color-scheme: light; }
 
 body {
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-slate-100 text-slate-900;
 }
 
 ::selection { background: rgba(16,185,129,0.2); }
 
 .bg-grid {
   background-image:
-    radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0);
+    radial-gradient(circle at 1px 1px, rgba(15,23,42,0.12) 1px, transparent 0);
   background-size: 22px 22px;
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(8px);
 }
 
@@ -30,14 +30,14 @@ body {
   @apply btn bg-emerald-600 text-white hover:bg-emerald-500 shadow-glow;
 }
 .btn-ghost {
-  @apply btn bg-white hover:bg-slate-100 border border-slate-200 text-slate-700;
+  @apply btn bg-white hover:bg-slate-100 border border-slate-300 text-slate-800;
 }
 .input {
-  @apply w-full rounded-xl bg-white border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/35;
+  @apply w-full rounded-xl bg-white border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/35;
 }
 .card {
   @apply glass rounded-2xl p-5;
 }
 .badge {
-  @apply inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs text-slate-700;
+  @apply inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-2.5 py-1 text-xs text-slate-800;
 }

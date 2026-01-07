@@ -39,7 +39,7 @@ export default function Profile() {
         <div className="py-10">
           <div className="flex items-center gap-3">
             <div className="badge"><User2 size={14} /> Profile</div>
-            <div className="text-sm text-slate-600">Make your profile trustworthy and aesthetic.</div>
+            <div className="text-sm text-slate-700">Make your profile trustworthy and clear.</div>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-3 gap-4">
@@ -48,10 +48,10 @@ export default function Profile() {
                 <img src={user?.photoURL ?? ''} className="h-14 w-14 rounded-2xl object-cover" />
                 <div>
                   <div className="text-lg font-semibold">{user?.displayName ?? 'Student'}</div>
-                  <div className="text-sm text-slate-500">{user?.email}</div>
+                  <div className="text-sm text-slate-600">{user?.email}</div>
                 </div>
               </div>
-              <div className="mt-4 text-sm text-slate-600">
+              <div className="mt-4 text-sm text-slate-700">
                 People lend faster when you look real: add a clear bio and school.
               </div>
             </div>
@@ -60,15 +60,15 @@ export default function Profile() {
               <div className="font-semibold">Edit details</div>
               <div className="mt-4 grid md:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-slate-500">School / University</label>
+                  <label className="text-xs text-slate-600">School / University</label>
                   <input className="input mt-1" value={school} onChange={(e) => setSchool(e.target.value)} placeholder="e.g., Denison University" />
                 </div>
                 <div>
-                  <label className="text-xs text-slate-500">Country</label>
+                  <label className="text-xs text-slate-600">Country</label>
                   <input className="input mt-1" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g., Nepal" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs text-slate-500">Bio</label>
+                  <label className="text-xs text-slate-600">Bio</label>
                   <textarea className="input mt-1 min-h-[110px]" value={bio} onChange={(e) => setBio(e.target.value)} placeholder="What are you studying? Why do you use LendFam?" />
                 </div>
               </div>

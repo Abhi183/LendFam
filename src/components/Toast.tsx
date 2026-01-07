@@ -13,7 +13,7 @@ export function Toast({ state, onClose }: { state: ToastState; onClose: () => vo
         </div>
         <div className="min-w-0 flex-1">
           <div className="font-medium">{state.title}</div>
-          {state.message ? <div className="text-sm text-slate-600 mt-0.5">{state.message}</div> : null}
+          {state.message ? <div className="text-sm text-slate-700 mt-0.5">{state.message}</div> : null}
         </div>
         <button className="btn-ghost px-2 py-2" onClick={onClose} aria-label="Close">
           <X size={16} />

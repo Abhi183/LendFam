@@ -5,7 +5,7 @@ import { listFriends } from '../store/friends'
 import { recordTransaction } from '../store/transactions'
 import { Toast, ToastState } from '../components/Toast'
 import { ArrowLeftRight, ShieldCheck } from 'lucide-react'
-import { fmtUSD } from '../utils/money'
+import { calcTotalWithInterest, fmtUSD } from '../utils/money'
 import { getUserProfile } from '../store/users'
 
 type MiniUser = { uid: string; displayName: string; photoURL?: string; email: string }
@@ -23,7 +23,7 @@ export default function Transfer() {
   const [amount, setAmount] = useState('25')
   const [interestRate, setInterestRate] = useState('0')
   const [note, setNote] = useState('')
-  const [mode, setMode] = useState<'sent' | 'received'>('sent')
+  const [mode, setMode] = useState<'sent' | 'received' | 'request'>('sent')
   const [toast, setToast] = useState<ToastState>({ open: false, title: '' })
 
   useEffect(() => {
@@ -49,19 +49,21 @@ export default function Transfer() {
       return
     }
     try {
-      // If "sent": I lent to them. If "received": they lent to me.
-      const fromUid = mode === 'sent' ? user.uid : toUid
-      const to = mode === 'sent' ? toUid : user.uid
+      const isLending = mode === 'sent'
+      const isRequesting = mode === 'request'
+      const fromUid = isLending ? user.uid : toUid
+      const to = isLending ? toUid : user.uid
       await recordTransaction({
         fromUid,
         toUid: to,
         amount: a,
         interestRate: r,
         note: note.trim(),
-        status: mode === 'sent' ? 'sent' : 'received',
+        status: isRequesting ? 'proposed' : (isLending ? 'sent' : 'received'),
       })
       setNote('')
-      setToast({ open: true, title: 'Recorded', message: `${mode === 'sent' ? 'Sent' : 'Received'} ${fmtUSD(a)} at ${r}%`, kind: 'ok' })
+      const actionLabel = isRequesting ? 'Requested' : (isLending ? 'Sent' : 'Received')
+      setToast({ open: true, title: isRequesting ? 'Request sent' : 'Recorded', message: `${actionLabel} ${fmtUSD(a)} at ${r}%`, kind: 'ok' })
     } catch (e: any) {
       setToast({ open: true, title: 'Could not record', message: e?.message, kind: 'err' })
     }
@@ -73,7 +75,7 @@ export default function Transfer() {
         <div className="py-10">
           <div className="flex items-center gap-3">
             <div className="badge"><ArrowLeftRight size={14} /> Send / Receive</div>
-            <div className="text-sm text-slate-600">Record lending activity (MVP ledger).</div>
+            <div className="text-sm text-slate-700">Record lending activity with clear repayment totals.</div>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-3 gap-4">
@@ -83,14 +85,15 @@ export default function Transfer() {
               <div className="mt-4 grid gap-3">
                 <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-500">Mode</label>
+                    <label className="text-xs text-slate-600">Mode</label>
                     <select className="input mt-1" value={mode} onChange={(e) => setMode(e.target.value as any)}>
-                      <option value="sent">I sent (I lent money)</option>
-                      <option value="received">I received (I borrowed money)</option>
+                      <option value="sent">Send money (I lent to a friend)</option>
+                      <option value="received">Record received (I borrowed money)</option>
+                      <option value="request">Request money from a friend</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500">Friend</label>
+                    <label className="text-xs text-slate-600">Friend</label>
                     <select className="input mt-1" value={toUid} onChange={(e) => setToUid(e.target.value)}>
                       {friends.length === 0 ? <option value="">No friends</option> : friends.map((f) => (
                         <option key={f.uid} value={f.uid}>{f.displayName} ({f.email})</option>
@@ -101,47 +104,49 @@ export default function Transfer() {
 
                 <div className="grid md:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-xs text-slate-500">Amount (USD)</label>
+                    <label className="text-xs text-slate-600">Amount (USD)</label>
                     <input className="input mt-1" value={amount} onChange={(e) => setAmount(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500">Interest %</label>
+                    <label className="text-xs text-slate-600">Interest %</label>
                     <input className="input mt-1" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500">Note</label>
+                    <label className="text-xs text-slate-600">Note</label>
                     <input className="input mt-1" value={note} onChange={(e) => setNote(e.target.value)} placeholder="optional" />
                   </div>
                 </div>
 
-                <button className="btn-primary" onClick={submit} disabled={friends.length === 0}>
-                  Record
-                </button>
-
-                <div className="text-xs text-slate-500">
-                  Next step: show transaction history + repayment schedule.
+                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
+                  {mode === 'sent' ? 'You will receive' : 'You will owe'}{' '}
+                  <span className="font-semibold">{fmtUSD(calcTotalWithInterest(Number(amount), Number(interestRate)))}</span>{' '}
+                  total with interest.
                 </div>
+
+                <button className="btn-primary" onClick={submit} disabled={friends.length === 0}>
+                  {mode === 'request' ? 'Send request' : 'Record'}
+                </button>
               </div>
             </div>
 
             <div className="card space-y-4">
               <div>
-                <div className="font-semibold">Pay with Zelle (demo)</div>
-                <p className="mt-2 text-sm text-slate-600">
-                  Payments will run through Zelle. This is a placeholder button for now.
+                <div className="font-semibold">Pay with Zelle</div>
+                <p className="mt-2 text-sm text-slate-700">
+                  Payments will run through Zelle. This button launches payment rails when connected.
                 </p>
                 <button className="btn-ghost mt-3 w-full">
-                  <ShieldCheck size={16} /> Launch Zelle (dummy)
+                  <ShieldCheck size={16} /> Launch Zelle
                 </button>
               </div>
 
               <div>
                 <div className="font-semibold">What this means</div>
-                <div className="mt-3 text-sm text-slate-600">
+                <div className="mt-3 text-sm text-slate-700">
                   LendFam is a <span className="text-emerald-700">social ledger + lending intent feed</span>.
-                  The MVP tracks agreements and transparency. Real money movement comes after integrating payment rails.
+                  The ledger tracks agreements and transparency until payment rails are connected.
                 </div>
-                <div className="mt-4 text-sm text-slate-600">
+                <div className="mt-4 text-sm text-slate-700">
                   Recommended next:
                   <ul className="list-disc pl-5 mt-2 space-y-1">
                     <li>Stripe/Dwolla integration</li>

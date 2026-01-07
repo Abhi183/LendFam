@@ -5,3 +5,8 @@ export function fmtUSD(n: number) {
 export function clampNum(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n))
 }
+
+export function calcTotalWithInterest(amount: number, interestRate: number) {
+  if (!Number.isFinite(amount) || !Number.isFinite(interestRate)) return 0
+  return amount + amount * (interestRate / 100)
+}
