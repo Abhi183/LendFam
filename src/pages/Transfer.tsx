@@ -2,20 +2,18 @@ import { useEffect, useState } from 'react'
 import { Container } from '../components/Container'
 import { useAuth } from '../state/AuthContext'
 import { listFriends } from '../store/friends'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '../firebase'
 import { recordTransaction } from '../store/transactions'
 import { Toast, ToastState } from '../components/Toast'
-import { ArrowLeftRight } from 'lucide-react'
+import { ArrowLeftRight, ShieldCheck } from 'lucide-react'
 import { fmtUSD } from '../utils/money'
+import { getUserProfile } from '../store/users'
 
 type MiniUser = { uid: string; displayName: string; photoURL?: string; email: string }
 
 async function getUserMini(uid: string): Promise<MiniUser | null> {
-  const snap = await getDoc(doc(db, 'users', uid))
-  if (!snap.exists()) return null
-  const d = snap.data() as any
-  return { uid, displayName: d.displayName, photoURL: d.photoURL, email: d.email }
+  const profile = await getUserProfile(uid)
+  if (!profile) return null
+  return { uid, displayName: profile.displayName, photoURL: profile.photoURL, email: profile.email }
 }
 
 export default function Transfer() {
@@ -75,7 +73,7 @@ export default function Transfer() {
         <div className="py-10">
           <div className="flex items-center gap-3">
             <div className="badge"><ArrowLeftRight size={14} /> Send / Receive</div>
-            <div className="text-sm text-slate-400">Record lending activity (MVP ledger).</div>
+            <div className="text-sm text-slate-600">Record lending activity (MVP ledger).</div>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-3 gap-4">
@@ -85,14 +83,14 @@ export default function Transfer() {
               <div className="mt-4 grid gap-3">
                 <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-400">Mode</label>
+                    <label className="text-xs text-slate-500">Mode</label>
                     <select className="input mt-1" value={mode} onChange={(e) => setMode(e.target.value as any)}>
                       <option value="sent">I sent (I lent money)</option>
                       <option value="received">I received (I borrowed money)</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400">Friend</label>
+                    <label className="text-xs text-slate-500">Friend</label>
                     <select className="input mt-1" value={toUid} onChange={(e) => setToUid(e.target.value)}>
                       {friends.length === 0 ? <option value="">No friends</option> : friends.map((f) => (
                         <option key={f.uid} value={f.uid}>{f.displayName} ({f.email})</option>
@@ -103,15 +101,15 @@ export default function Transfer() {
 
                 <div className="grid md:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-xs text-slate-400">Amount (USD)</label>
+                    <label className="text-xs text-slate-500">Amount (USD)</label>
                     <input className="input mt-1" value={amount} onChange={(e) => setAmount(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400">Interest %</label>
+                    <label className="text-xs text-slate-500">Interest %</label>
                     <input className="input mt-1" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400">Note</label>
+                    <label className="text-xs text-slate-500">Note</label>
                     <input className="input mt-1" value={note} onChange={(e) => setNote(e.target.value)} placeholder="optional" />
                   </div>
                 </div>
@@ -126,19 +124,31 @@ export default function Transfer() {
               </div>
             </div>
 
-            <div className="card">
-              <div className="font-semibold">What this means</div>
-              <div className="mt-3 text-sm text-slate-300">
-                LendFam is a <span className="text-emerald-200">social ledger + lending intent feed</span>.
-                The MVP tracks agreements and transparency. Real money movement comes after integrating payment rails.
+            <div className="card space-y-4">
+              <div>
+                <div className="font-semibold">Pay with Zelle (demo)</div>
+                <p className="mt-2 text-sm text-slate-600">
+                  Payments will run through Zelle. This is a placeholder button for now.
+                </p>
+                <button className="btn-ghost mt-3 w-full">
+                  <ShieldCheck size={16} /> Launch Zelle (dummy)
+                </button>
               </div>
-              <div className="mt-4 text-sm text-slate-400">
-                Recommended next:
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>Stripe/Dwolla integration</li>
-                  <li>Repayment reminders</li>
-                  <li>Risk + trust scoring</li>
-                </ul>
+
+              <div>
+                <div className="font-semibold">What this means</div>
+                <div className="mt-3 text-sm text-slate-600">
+                  LendFam is a <span className="text-emerald-700">social ledger + lending intent feed</span>.
+                  The MVP tracks agreements and transparency. Real money movement comes after integrating payment rails.
+                </div>
+                <div className="mt-4 text-sm text-slate-600">
+                  Recommended next:
+                  <ul className="list-disc pl-5 mt-2 space-y-1">
+                    <li>Stripe/Dwolla integration</li>
+                    <li>Repayment reminders</li>
+                    <li>Risk + trust scoring</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { Timestamp, addDoc, collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore'
 import { db } from '../firebase'
+import { demoPosts, makeDemoTimestamp } from './demoData'
 
 export type Post = {
   authorUid: string
@@ -15,11 +16,28 @@ export type Post = {
 }
 
 export async function createPost(p: Omit<Post, 'createdAt'>) {
+  if (!db) {
+    demoPosts.unshift({
+      id: `demo-post-${Date.now()}`,
+      ...p,
+      createdAt: makeDemoTimestamp(),
+    })
+    return
+  }
+
   await addDoc(collection(db, 'posts'), { ...p, createdAt: Timestamp.now() })
 }
 
 export async function getLatestPostsForAuthors(authorUids: string[], max = 50) {
   if (authorUids.length === 0) return []
+
+  if (!db) {
+    return demoPosts
+      .filter((p) => authorUids.includes(p.authorUid))
+      .sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0))
+      .slice(0, max)
+  }
+
   // Firestore "in" supports up to 10 items. For MVP, we chunk.
   const chunks: string[][] = []
   for (let i = 0; i < authorUids.length; i += 10) chunks.push(authorUids.slice(i, i + 10))

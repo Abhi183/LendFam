@@ -10,18 +10,17 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { useAuth } from './state/AuthContext'
 
 export default function App() {
-  const { configReady, missingConfig } = useAuth()
+  const { isDemo } = useAuth()
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-slate-50">
       <TopNav />
-      {!configReady && (
-        <div className="border-b border-amber-400/40 bg-amber-500/10 text-amber-100">
+      {isDemo && (
+        <div className="border-b border-emerald-200 bg-emerald-50 text-emerald-900">
           <div className="mx-auto max-w-6xl px-4 md:px-6 py-3 text-sm">
-            <div className="font-semibold">Firebase is not configured.</div>
-            <div className="text-amber-100/80">
-              Add the following environment variables in Cloudflare Pages to render auth-backed screens:{' '}
-              <span className="font-medium">{missingConfig.join(', ') || 'VITE_FIREBASE_*'}</span>.
+            <div className="font-semibold">Demo mode is on.</div>
+            <div className="text-emerald-800/80">
+              Sign in with the dummy Google button to explore sample data.
             </div>
           </div>
         </div>

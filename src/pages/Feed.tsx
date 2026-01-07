@@ -77,7 +77,7 @@ export default function Feed() {
         <div className="py-10">
           <div className="flex items-center gap-3">
             <div className="badge"><Newspaper size={14} /> Feed</div>
-            <div className="text-sm text-slate-400">Post a request or offer — include interest and duration.</div>
+            <div className="text-sm text-slate-600">Post a request or offer — include interest and duration.</div>
           </div>
 
           <div className="mt-6 grid lg:grid-cols-3 gap-4">
@@ -86,7 +86,7 @@ export default function Feed() {
 
               <div className="mt-4 grid gap-3">
                 <div>
-                  <label className="text-xs text-slate-400">Type</label>
+                  <label className="text-xs text-slate-500">Type</label>
                   <select className="input mt-1" value={type} onChange={(e) => setType(e.target.value as any)}>
                     <option value="loan_request">Loan request</option>
                     <option value="loan_offer">Loan offer</option>
@@ -94,23 +94,23 @@ export default function Feed() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-400">Amount (USD)</label>
+                  <label className="text-xs text-slate-500">Amount (USD)</label>
                   <input className="input mt-1" value={amount} onChange={(e) => setAmount(e.target.value)} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-slate-400">Interest %</label>
+                    <label className="text-xs text-slate-500">Interest %</label>
                     <input className="input mt-1" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-400">Days</label>
+                    <label className="text-xs text-slate-500">Days</label>
                     <input className="input mt-1" value={durationDays} onChange={(e) => setDurationDays(e.target.value)} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-400">Visibility</label>
+                  <label className="text-xs text-slate-500">Visibility</label>
                   <select className="input mt-1" value={visibility} onChange={(e) => setVisibility(e.target.value as any)}>
                     <option value="friends">Friends</option>
                     <option value="fof">Friends-of-friends</option>
@@ -119,7 +119,7 @@ export default function Feed() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-slate-400">Message</label>
+                  <label className="text-xs text-slate-500">Message</label>
                   <textarea className="input mt-1 min-h-[120px]" value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Why do you need it / terms you prefer / repayment date…" />
                 </div>
 
@@ -138,9 +138,9 @@ export default function Feed() {
 
               <div className="mt-4 space-y-3">
                 {posts.length === 0 ? (
-                  <div className="text-sm text-slate-400">No posts. Create the first one.</div>
+                  <div className="text-sm text-slate-600">No posts. Create the first one.</div>
                 ) : posts.map((p) => (
-                  <div key={p.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div key={p.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function Feed() {
                         <div className="mt-2 text-lg font-semibold">
                           {p.type === 'loan_request' ? 'Needs' : 'Offers'} {fmtUSD(Number(p.amount))}
                         </div>
-                        <div className="text-sm text-slate-300 mt-1">
+                        <div className="text-sm text-slate-600 mt-1">
                           {Number(p.durationDays)} days • {Number(p.interestRate)}% interest
                         </div>
                       </div>
@@ -160,7 +160,7 @@ export default function Feed() {
                         {p.createdAt?.toDate ? p.createdAt.toDate().toLocaleString() : ''}
                       </div>
                     </div>
-                    {p.message ? <div className="mt-2 text-sm text-slate-300">{p.message}</div> : null}
+                    {p.message ? <div className="mt-2 text-sm text-slate-600">{p.message}</div> : null}
 
                     <div className="mt-3 text-xs text-slate-500">
                       Next step: add “Offer/Accept” actions + repayment schedule.
