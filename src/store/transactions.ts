@@ -32,6 +32,10 @@ export async function recordTransaction(t: Omit<Transaction, 'createdAt'>) {
         toUid: notifyUid,
         title: t.status === 'proposed' ? 'New money request' : 'New lending record',
         message: `${verb} for ${fmtUSD(t.amount)} at ${t.interestRate}%.`,
+      await addNotification({
+        toUid: notifyUid,
+        title: 'New lending record',
+        message: `${t.status === 'sent' ? 'A loan was sent' : 'A loan was received'} for ${fmtUSD(t.amount)} at ${t.interestRate}%.`,
         kind: 'transaction',
       })
     }
